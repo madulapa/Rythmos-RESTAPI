@@ -1,0 +1,12 @@
+{
+    "DB" : {
+        "URL" : "mongodb+srv://laya-madulapally:testpassword@assignment1-psbm7.mongodb.net/assignment1_data?retryWrites=true&w=majority",
+        "options" : {
+            "useNewUrlParser": true,
+            "useUnifiedTopology": true
+        }
+    },
+    "app": {
+        "PORT": 3000
+    }
+}

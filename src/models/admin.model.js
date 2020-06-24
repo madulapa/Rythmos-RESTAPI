@@ -1,4 +1,4 @@
-//customers can only get products 
+//admins have access to all CRUD ops on customers and products
 
 let mongoose = require("mongoose") 
 let config = require("../config.json")
@@ -15,7 +15,7 @@ mongoose.connect(
 .catch(err => console.log(err));
 
 
-let CustomerSchema = new mongoose.Schema({
+let AdminSchema = new mongoose.Schema({
     name: String, 
     email: {
         type: String, 
@@ -24,4 +24,4 @@ let CustomerSchema = new mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model('Customer', CustomerSchema)
+module.exports = mongoose.model('Admin', AdminSchema)

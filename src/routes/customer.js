@@ -2,13 +2,13 @@ CustomerModel = require('../models/customer.model')
 ProductModel = require('../models/product.model')
 
 let express = require('express')
-let keycloak = require('keycloak-connect')
 let router = express.Router()
+const keycloak = require('./../keycloak.js');
 
 
 //create new customer
 //post = send data
-router.post('/customer', (req, res) => {
+router.post('/customer', keycloak.keycloak.protect("realm:demo"), (req, res) => {
     if(!req.body){
         return res.status(400).send('Request body is missing')
     }
@@ -61,7 +61,7 @@ router.delete('/customer/:name', (req, res) => {
 })
 */
 
-router.get('/product/:name', keycloak.protect(), (req, res) => {
+router.get('/product/:name', keycloak.keycloak.protect(), (req, res) => {
     if(!req.query.name) {
         return res.status(400).send('missing url param')
     }

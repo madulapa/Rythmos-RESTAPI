@@ -2,10 +2,10 @@ ProductModel = require('../models/product.model')
 
 let express = require('express')
 let router = express.Router()
+const keycloak = require('./../keycloak.js');
 
-//create new customer
 //post = send data
-router.post('/product', (req, res) => {
+router.post('/product', keycloak.keycloak.protect(),(req, res) => {
     if(!req.body){
         return res.status(400).send('Request body is missing')
     }

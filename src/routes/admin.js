@@ -3,13 +3,12 @@ ProductModel = require('../models/product.model')
 CustomerModel = require('../models/customer.model')
 
 let express = require('express')
-let keycloak = require('keycloak-connect')
 let router = express.Router()
-
+const keycloak = require('./../keycloak.js');
 
 
 //ADMIN CONTROLS 
-router.post('/admin', (req, res) => {
+router.post('/admin', keycloak.keycloak.protect(), (req, res) => {
     if(!req.body){
         return res.status(400).send('Request body is missing')
     }
@@ -31,7 +30,7 @@ router.post('/admin', (req, res) => {
     
 })
 //get = recieve data  by name
-router.get('/admin/:name', keycloak.protect(), (req, res) => {
+router.get('/admin/:name', keycloak.keycloak.protect(), (req, res) => {
     if(!req.query.name) {
         return res.status(400).send('missing url param')
     }
@@ -48,14 +47,13 @@ router.get('/admin/:name', keycloak.protect(), (req, res) => {
     })
 })
 //delete by name 
-router.delete('/admin/:name', keycloak.protect(), (req, res) => {
+/*
+router.delete('/admin/:name', keycloak.keycloak.protect(), async (req, res) => {
     if(!req.query.name) {
         return res.status(400).send('missing url param')
     }
-    AdminModel.findOne({
-        name: req.query.name
-    })
-    try {
+
+   try {
         const success = await req.delete(name)
         if(success){
             res.status(204).end()
@@ -67,11 +65,13 @@ router.delete('/admin/:name', keycloak.protect(), (req, res) => {
     catch(err) {
         res.status(500).json(err)
     }
+    
 })
+*/
 
 //CUSTOMER CONTROLS
 //create new customer
-router.post('/customer', (req, res) => {
+router.post('/customer', keycloak.keycloak.protect(), (req, res) => {
     if(!req.body){
         return res.status(400).send('Request body is missing')
     }
@@ -93,7 +93,7 @@ router.post('/customer', (req, res) => {
     
 })
 //get = recieve data  by name
-router.get('/customer/:name', keycloak.protect(), (req, res) => {
+router.get('/customer/:name', keycloak.keycloak.protect(), (req, res) => {
     if(!req.query.name) {
         return res.status(400).send('missing url param')
     }
@@ -108,7 +108,8 @@ router.get('/customer/:name', keycloak.protect(), (req, res) => {
     })
 })
 //delete by name 
-router.delete('/customer/:name', keycloak.protect(), (req, res) => {
+/*
+router.delete('/customer/:name', keycloak.keycloak.protect(), (req, res) => {
     if(!req.query.name) {
         return res.status(400).send('missing url param')
     }
@@ -128,9 +129,10 @@ router.delete('/customer/:name', keycloak.protect(), (req, res) => {
         res.status(500).json(err)
     }
 })
+*/
 
 //PRODUCT CONTROLS
-router.post('/product', (req, res) => {
+router.post('/product', keycloak.keycloak.protect(), (req, res) => {
     if(!req.body){
         return res.status(400).send('Request body is missing')
     }
@@ -152,7 +154,7 @@ router.post('/product', (req, res) => {
     
 })
 //get = recieve data  by name
-router.get('/product/:name', keycloak.protect(), (req, res) => {
+router.get('/product/:name', keycloak.keycloak.protect(), (req, res) => {
     if(!req.query.name) {
         return res.status(400).send('missing url param')
     }
@@ -167,7 +169,8 @@ router.get('/product/:name', keycloak.protect(), (req, res) => {
     })
 })
 //delete by name 
-router.delete('/product/:name', keycloak.protect(), (req, res) => {
+/*
+router.delete('/product/:name', keycloak.keycloak.protect(), (req, res) => {
     if(!req.query.name) {
         return res.status(400).send('missing url param')
     }
@@ -187,4 +190,5 @@ router.delete('/product/:name', keycloak.protect(), (req, res) => {
         res.status(500).json(err)
     }
 })
+*/
 module.exports = router

@@ -1,12 +1,11 @@
 let mongoose = require("mongoose") 
 let config = require("../config.json")
 
-
-mongoose.connect(
+mongoose
+.connect(
     config.DB.URL, 
     config.DB.options
 )
-
 .then(() => {
     console.log("mongoDB connected....")
 })

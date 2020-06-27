@@ -1,194 +1,76 @@
 AdminModel = require('../models/admin.model')
-ProductModel = require('../models/product.model')
-CustomerModel = require('../models/customer.model')
 
 let express = require('express')
 let router = express.Router()
 const keycloak = require('./../keycloak.js');
 
-
-//ADMIN CONTROLS 
-router.post('/admin', keycloak.keycloak.protect(), (req, res) => {
-    if(!req.body){
-        return res.status(400).send('Request body is missing')
-    }
-    else {
-        let model = new AdminModel(req.body)
-        model.save()
-            .then(doc => {
-                if(!doc || doc.length === 0){
-                    return res.status(500).send(doc)
-                }
-                else {
-                    res.status(201).send(doc)
-                }
-            })
-            .catch(err => {
-                res.status(500).json(err)
-            })
-    }
-    
-})
-//get = recieve data  by name
-router.get('/admin/:name', keycloak.keycloak.protect(), (req, res) => {
-    if(!req.query.name) {
-        return res.status(400).send('missing url param')
-    }
-    AdminModel.findOne({
-        name: req.query.name
-    })
-    .then(doc => {
-        res.send(`you have requested an admin ${req.query.name} with 
-            the email ${req.query.email}`)
-        res.json(500)
-    })
-    .catch(err => {
-        res.status(500).json(err)
-    })
-})
-//delete by name 
-/*
-router.delete('/admin/:name', keycloak.keycloak.protect(), async (req, res) => {
-    if(!req.query.name) {
-        return res.status(400).send('missing url param')
-    }
-
-   try {
-        const success = await req.delete(name)
-        if(success){
-            res.status(204).end()
-        }
-        else{
-            res.status(404).end()
-        }
-    }
-    catch(err) {
-        res.status(500).json(err)
-    }
-    
-})
-*/
-
-//CUSTOMER CONTROLS
-//create new customer
-router.post('/customer', keycloak.keycloak.protect(), (req, res) => {
-    if(!req.body){
-        return res.status(400).send('Request body is missing')
-    }
-    else {
-        let model = new CustomerModel(req.body)
-        model.save()
-            .then(doc => {
-                if(!doc || doc.length === 0){
-                    return res.status(500).send(doc)
-                }
-                else {
-                    res.status(201).send(doc)
-                }
-            })
-            .catch(err => {
-                res.status(500).json(err)
-            })
-    }
-    
-})
-//get = recieve data  by name
-router.get('/customer/:name', keycloak.keycloak.protect(), (req, res) => {
-    if(!req.query.name) {
-        return res.status(400).send('missing url param')
-    }
-    CustomerModel.findOne({
-        name: req.query.name
-    })
-    .then(doc => {
-        res.json(500)
-    })
-    .catch(err => {
-        res.status(500).json(err)
-    })
-})
-//delete by name 
-/*
-router.delete('/customer/:name', keycloak.keycloak.protect(), (req, res) => {
-    if(!req.query.name) {
-        return res.status(400).send('missing url param')
-    }
-    CustomerModel.findOne({
-        name: req.query.name
+//create an admin
+router.post('/admin', async (req, res) => {
+    const admin = new AdminModel({
+        name: req.body.name,
+        email: req.body.email
     })
     try {
-        const success = await req.delete(name)
-        if(success){
-            res.status(204).end()
-        }
-        else{
-            res.status(404).end()
-        }
+        const newAdmin = await admin.save()
+        res.status(201).json(newAdmin)
     }
-    catch(err) {
-        res.status(500).json(err)
-    }
+    catch(err){
+        res.status(400).json(err)
+    }  
 })
-*/
 
-//PRODUCT CONTROLS
-router.post('/product', keycloak.keycloak.protect(), (req, res) => {
-    if(!req.body){
-        return res.status(400).send('Request body is missing')
-    }
-    else {
-        let model = new ProductModel(req.body)
-        model.save()
-            .then(doc => {
-                if(!doc || doc.length === 0){
-                    return res.status(500).send(doc)
-                }
-                else {
-                    res.status(201).send(doc)
-                }
-            })
-            .catch(err => {
-                res.status(500).json(err)
-            })
-    }
-    
-})
-//get = recieve data  by name
-router.get('/product/:name', keycloak.keycloak.protect(), (req, res) => {
-    if(!req.query.name) {
-        return res.status(400).send('missing url param')
-    }
-    ProductModel.findOne({
-        name: req.query.name
-    })
-    .then(doc => {
-        res.json(500)
-    })
-    .catch(err => {
-        res.status(500).json(err)
-    })
-})
-//delete by name 
-/*
-router.delete('/product/:name', keycloak.keycloak.protect(), (req, res) => {
-    if(!req.query.name) {
-        return res.status(400).send('missing url param')
-    }
-    ProductModel.findOne({
-        name: req.query.name
-    })
+//get ALL admins
+router.get('/admin', async (req, res) => {
     try {
-        const success = await req.delete(name)
-        if(success){
-            res.status(204).end()
-        }
-        else{
-            res.status(404).end()
-        }
+        const admins = await AdminModel.find();
+        res.json(admins);
     }
     catch(err) {
         res.status(500).json(err)
     }
 })
-*/
+//update by id
+router.patch('/admin/:id', getAdmin, async (req, res) => {
+    if(req.body.name != null) {
+        res.admin.name = req.body.name
+    }
+    if(req.body.email != null) {
+        res.admin.email = req.body.email
+    }
+    try {
+        const updatedAdmin = await res.admin.save()
+        res.json(updatedAdmin)
+    }
+    catch (err) {
+        res.status(400).json(err)
+    }
+})
+//delete by id
+router.delete('/admin/:id', getAdmin, async (req, res) => {
+ try {
+    await res.admin.remove()
+    res.json({message: "successfully deleted admin"})
+ }
+ catch (err) {
+    res.status(500).json(err)
+ }
+})
+
+//middleware helper func
+async function getAdmin(req, res, next)
+{
+    let admin;
+    try {
+        admin = await AdminModel.findById(req.params.id)
+        if(admin == null){
+            return res.status(404).json({ message: "can't find admin"})
+        }
+    }
+    catch (err) {
+        return res.status(500).json(err)
+    }
+    res.admin = admin
+    next()
+}
+
 module.exports = router

@@ -1,81 +1,76 @@
 CustomerModel = require('../models/customer.model')
-ProductModel = require('../models/product.model')
 
 let express = require('express')
 let router = express.Router()
 const keycloak = require('./../keycloak.js');
 
-
-//create new customer
-//post = send data
-router.post('/customer', keycloak.keycloak.protect("realm:demo"), (req, res) => {
-    if(!req.body){
-        return res.status(400).send('Request body is missing')
+//create a customer
+router.post('/customer',  async (req, res) => {
+    const customer = new CustomerModel({
+        name: req.body.name,
+        email: req.body.email
+    })
+    try {
+        const newCustomer = await customer.save()
+        res.status(201).json(newCustomer)
     }
-    else {
-        let model = new CustomerModel(req.body)
-        model.save()
-            .then(doc => {
-                if(!doc || doc.length === 0){
-                    return res.status(500).send(doc)
-                }
-                else {
-                    res.status(201).send(doc)
-                }
-            })
-            .catch(err => {
-                res.status(500).json(err)
-            })
-    } 
-})
-/*
-//get = recieve data  by name
-router.get('/customer/:name', (req, res) => {
-    if(!req.query.name) {
-        return res.status(400).send('missing url param')
-    }
-    CustomerModel.findOne({
-        name: req.query.name
-    })
-    .then(doc => {
-        res.json(500)
-    })
-    .catch(err => {
-        res.status(500).json(err)
-    })
-})
-//delete by name 
-router.delete('/customer/:name', (req, res) => {
-    if(!req.query.name) {
-        return res.status(400).send('missing url param')
-    }
-    CustomerModel.findOne({
-        name: req.query.name
-    })
-    .then(doc => {
-        res.delete
-    })
-    .catch(err => {
-        res.status(500).json(err)
-    })
-})
-*/
-
-router.get('/product/:name', keycloak.keycloak.protect(), (req, res) => {
-    if(!req.query.name) {
-        return res.status(400).send('missing url param')
-    }
-    CustomerModel.findOne({
-        name: req.query.name
-    })
-    .then(doc => {
-        console.log("Product is: ")
-        console.log(name)
-        res.json(500)
-    })
-    .catch(err => {
-        res.status(500).json(err)
-    })
+    catch(err){
+        res.status(400).json(err)
+    }  
 })
 
+//get ALL customers
+router.get('/customer', async (req, res) => {
+    try {
+        const customers = await CustomerModel.find();
+        res.json(customers);
+    }
+    catch(err) {
+        res.status(500).json(err)
+    }
+})
+
+//update by id
+router.patch('/customer/:id', getCustomer, async (req, res) => {
+    if(req.body.name != null) {
+        res.customer.name = req.body.name
+    }
+    if(req.body.email != null) {
+        res.customer.email = req.body.email
+    }
+    try {
+        const updatedCustomer = await res.customer.save()
+        res.json(updatedCustomer)
+    }
+    catch (err) {
+        res.status(400).json(err)
+    }
+})
+//delete by id
+router.delete('/customer/:id', getCustomer, async (req, res) => {
+ try {
+    await res.customer.remove()
+    res.json({message: "successfully deleted customer"})
+ }
+ catch (err) {
+    res.status(500).json(err)
+ }
+})
+
+//middleware helper func
+async function getCustomer(req, res, next)
+{
+    let customer;
+    try {
+        customer = await CustomerModel.findById(req.params.id)
+        if(customer == null){
+            return res.status(404).json({ message: "can't find customer"})
+        }
+    }
+    catch (err) {
+        return res.status(500).json(err)
+    }
+    res.customer = customer
+    next()
+}
 module.exports = router

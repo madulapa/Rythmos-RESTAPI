@@ -1,10 +1,11 @@
 //customers can only get products 
 
-let mongoose = require("mongoose") 
-let config = require("../config.json")
+const mongoose = require("mongoose") 
+const config = require("../config.json")
 
 
-mongoose.connect(
+mongoose
+.connect(
     config.DB.URL, 
     config.DB.options
 )
@@ -13,7 +14,6 @@ mongoose.connect(
     console.log("mongoDB connected....")
 })
 .catch(err => console.log(err));
-
 
 let CustomerSchema = new mongoose.Schema({
     name: String, 

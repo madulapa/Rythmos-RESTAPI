@@ -17,17 +17,18 @@ app.use((req, res, next) => {
     next()
 })
 
+//app.use(keycloak.session);
+//app.use(keycloak.keycloak.middleware);
 app.use(customerRoute)
 app.use(productRoute)
 app.use(adminRoute)
 app.use(express.static('public'))
-app.use(keycloak.session);
-app.use(keycloak.keycloak.middleware);
+
 
 app.get('/logoff', keycloak.keycloak.protect(), (req, res) => {
   console.log('logout clicked')
   res.send('https://localhost:3000/logout')
 })
-app.use( keycloak.keycloak.middleware( { logout: '/'}))
+//app.use( keycloak.keycloak.middleware( { logout: '/'}))
 app.listen(3000, () => {});
 //config.port

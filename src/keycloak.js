@@ -1,6 +1,5 @@
 const Keycloak = require('keycloak-connect')
 const session = require('express-session')
-
 var memoryStore = new session.MemoryStore();
 
 

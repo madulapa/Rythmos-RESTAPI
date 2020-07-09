@@ -1,76 +1,88 @@
 CustomerModel = require('../models/customer.model')
 
-let express = require('express')
-let router = express.Router()
+const express = require('express');
+const router = express.Router();
 const keycloak = require('./../keycloak.js');
 
-//create a customer
-router.post('/customer',  async (req, res) => {
+/**
+ * Role: admin
+ * create a customer
+ */
+router.post('/customer',  keycloak.keycloak.protect("Admin"), async (req, res) => {
     const customer = new CustomerModel({
         name: req.body.name,
         email: req.body.email
     })
     try {
         const newCustomer = await customer.save()
-        res.status(201).json(newCustomer)
+        return res.status(201).json(newCustomer)
     }
     catch(err){
-        res.status(400).json(err)
+        return res.status(400).json(err)
     }  
 })
 
-//get ALL customers
-router.get('/customer', async (req, res) => {
+/**
+ * Role: admin
+ * Get all customers data
+ */
+router.get('/customer', keycloak.keycloak.protect("Admin"),async (req, res) => {
     try {
         const customers = await CustomerModel.find();
-        res.json(customers);
+        return res.json(customers);
     }
     catch(err) {
-        res.status(500).json(err)
-    }
-})
-
-//update by id
-router.patch('/customer/:id', getCustomer, async (req, res) => {
-    if(req.body.name != null) {
-        res.customer.name = req.body.name
-    }
-    if(req.body.email != null) {
-        res.customer.email = req.body.email
-    }
-    try {
-        const updatedCustomer = await res.customer.save()
-        res.json(updatedCustomer)
-    }
-    catch (err) {
-        res.status(400).json(err)
-    }
-})
-//delete by id
-router.delete('/customer/:id', getCustomer, async (req, res) => {
- try {
-    await res.customer.remove()
-    res.json({message: "successfully deleted customer"})
- }
- catch (err) {
-    res.status(500).json(err)
- }
-})
-
-//middleware helper func
-async function getCustomer(req, res, next)
-{
-    let customer;
-    try {
-        customer = await CustomerModel.findById(req.params.id)
-        if(customer == null){
-            return res.status(404).json({ message: "can't find customer"})
-        }
-    }
-    catch (err) {
         return res.status(500).json(err)
     }
-    res.customer = customer
-    next()
+})
+
+/**
+ * Role: admin and customer
+ * update a customers data
+ */
+router.patch('/customer/:id', keycloak.keycloak.protect("Admin"), async (req, res) => {
+    let customer = await getCustomerbyId(req.params.id)
+
+    if(customer.name != null) {
+        customer.name = req.body.name
+    }
+    if(customer.email != null) {
+        customer.email = req.body.email
+    }
+    try {
+        const updatedCustomer = await customer.save()
+        return res.json(updatedCustomer)
+    }
+    catch (err) {
+        return res.status(400).json(err)
+    }
+})
+/**
+ * Role: admin
+ * delete a customer
+ */
+router.delete('/customer/:id', keycloak.keycloak.protect("Admin"), async (req, res) => {
+    let customer = await getCustomerbyId(req.params.id)
+    try {
+    await customer.remove()
+    return res.json({message: "successfully deleted customer"})
+ }
+ catch (err) {
+    return res.status(500).json(err)
+ }
+})
+
+/**
+ * Role: admin
+ * helper function for patch and delete
+ */
+async function getCustomerbyId(id)
+{
+    let customer = await CustomerModel.findById(id)
+    console.log(customer)
+    if(customer == null){
+        return null; 
+    }
+    return customer; 
 }
 module.exports = router

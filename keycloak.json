@@ -1,8 +1,8 @@
 {
-  "realm": "demo",
+  "realm": "Rythmos-RESTAPI",
   "auth-server-url": "http://localhost:8080/auth/",
-  "ssl-required": "external",
-  "resource": "customer1",
-  "public-client": true,
-  "confidential-port": 0
+  "resource": "Store-transactions",
+  "credentials": {
+    "secret": "c27c0c3f-ebe6-4914-b551-ad70635875ce"
+  }
 }

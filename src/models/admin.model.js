@@ -1,19 +1,5 @@
-//admins have access to all CRUD ops on customers and products
-
-let mongoose = require("mongoose") 
-let config = require("../config.json")
-
-mongoose
-.connect(
-    config.DB.URL, 
-    config.DB.options
-)
-
-.then(() => {
-    console.log("mongoDB connected....")
-})
-.catch(err => console.log(err));
-
+const mongoose = require("mongoose");
+const db = require('../db.js');
 
 let AdminSchema = new mongoose.Schema({
     name: String, 

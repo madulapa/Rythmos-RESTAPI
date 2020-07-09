@@ -1,76 +1,86 @@
-AdminModel = require('../models/admin.model')
+AdminModel = require('../models/admin.model');
 
-let express = require('express')
-let router = express.Router()
+const express = require('express');
+const router = express.Router();
 const keycloak = require('./../keycloak.js');
-
-//create an admin
-router.post('/admin', async (req, res) => {
+const { Db } = require('mongodb');
+/**
+ * Role: admin
+ */
+router.post('/admin', keycloak.keycloak.protect("Admin"), async (req, res) => {
     const admin = new AdminModel({
         name: req.body.name,
         email: req.body.email
     })
     try {
         const newAdmin = await admin.save()
-        res.status(201).json(newAdmin)
+        return res.status(201).json(newAdmin)
     }
     catch(err){
-        res.status(400).json(err)
+        return res.status(400).json(err)
     }  
 })
 
-//get ALL admins
-router.get('/admin', async (req, res) => {
+/**
+ * Role: admin
+ */
+router.get('/admin',keycloak.keycloak.protect("Admin"), async (req, res) => {
     try {
         const admins = await AdminModel.find();
-        res.json(admins);
+        return res.json(admins);
     }
     catch(err) {
-        res.status(500).json(err)
-    }
-})
-//update by id
-router.patch('/admin/:id', getAdmin, async (req, res) => {
-    if(req.body.name != null) {
-        res.admin.name = req.body.name
-    }
-    if(req.body.email != null) {
-        res.admin.email = req.body.email
-    }
-    try {
-        const updatedAdmin = await res.admin.save()
-        res.json(updatedAdmin)
-    }
-    catch (err) {
-        res.status(400).json(err)
-    }
-})
-//delete by id
-router.delete('/admin/:id', getAdmin, async (req, res) => {
- try {
-    await res.admin.remove()
-    res.json({message: "successfully deleted admin"})
- }
- catch (err) {
-    res.status(500).json(err)
- }
-})
-
-//middleware helper func
-async function getAdmin(req, res, next)
-{
-    let admin;
-    try {
-        admin = await AdminModel.findById(req.params.id)
-        if(admin == null){
-            return res.status(404).json({ message: "can't find admin"})
-        }
-    }
-    catch (err) {
         return res.status(500).json(err)
     }
-    res.admin = admin
-    next()
+})
+
+/**
+ * Role: admin
+ */
+router.patch('/admin/:id', keycloak.keycloak.protect("Admin"), async (req, res) => {
+
+    let admin = await getAdminbyId(req.params.id)
+
+    if(admin.name != null) {
+        admin.name = req.body.name
+    }
+    if(admin.email != null) {
+        admin.email = req.body.email
+    }
+    try {
+        const updatedAdmin = admin.save()
+        return res.json(updatedAdmin)
+    }
+    catch (err) {
+        return res.status(400).json(err)
+    }
+})
+
+/**
+ * Role: admin
+ */
+router.delete('/admin/:id', keycloak.keycloak.protect("Admin"), async (req, res) => {
+    let admin = await getAdminbyId(req.params.id)
+    try {
+    await admin.remove()
+    return res.json({message: "successfully deleted admin"})
+ }
+ catch (err) {
+    return res.status(500).json(err)
+ }
+})
+/**
+ * Role: admin
+ * Helper function for patch and delete 
+ */
+async function getAdminbyId(id)
+{
+    let admin = await AdminModel.findById(id)
+    console.log(admin)
+    if(admin == null){
+        return null; 
+    }
+    return admin; 
 }
 
 module.exports = router

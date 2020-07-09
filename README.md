@@ -4,7 +4,9 @@ Realm: Rythmos-RESTAPI
 Client: Store-transactions
 
 Roles: admin, customer, product 
+
 Admin controls: admin, user, product CRUD operations
+
 User controls: Product get operation
 
 run index.js using npm run start-watch

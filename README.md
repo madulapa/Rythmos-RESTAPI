@@ -6,10 +6,8 @@ Client: Store-transactions
 Roles: admin, customer, product 
 
 Admin controls: admin, user, product CRUD operations
-http://localhost:3000/admin
 
-Customer controls: Product get operation
-http://localhost:3000/customer
+User controls: Product get operation
 
 run index.js using npm run start-watch
 http://localhost:3000
